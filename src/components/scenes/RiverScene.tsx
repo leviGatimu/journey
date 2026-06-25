@@ -77,7 +77,7 @@ function DriftingFragment({
 
 export default function RiverScene() {
   const world = getWorld("river")!;
-  const photos = useMemo(() => picksFor("river", 10), []);
+  const photos = useMemo(() => picksFor("river", 12), []);
   const frags = fragmentsForWorld("river");
   const has = useExperience((s) => s.hasCollected);
   const collect = useCollect();

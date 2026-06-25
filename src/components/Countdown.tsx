@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { timeUntilUnlock, NAME } from "@/lib/config";
-import SoundToggle from "@/components/ui/SoundToggle";
-import { useExperience } from "@/lib/store";
 
 const WaitingRoomCanvas = dynamic(
   () => import("@/components/scenes/WaitingRoomCanvas"),
@@ -47,7 +45,6 @@ function Unit({ value, label }: { value: number; label: string }) {
 
 export default function Countdown({ onUnlock }: { onUnlock: () => void }) {
   const [t, setT] = useState(() => timeUntilUnlock());
-  const setForceUnlocked = useExperience((s) => s.setForceUnlocked);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -61,20 +58,6 @@ export default function Countdown({ onUnlock }: { onUnlock: () => void }) {
     return () => clearInterval(id);
   }, [onUnlock]);
 
-  // Preview key for the gift-giver: Shift + U unlocks early.
-  const forceOpen = useCallback(() => {
-    setForceUnlocked(true);
-    onUnlock();
-  }, [onUnlock, setForceUnlocked]);
-
-  useEffect(() => {
-    const h = (e: KeyboardEvent) => {
-      if (e.shiftKey && e.key.toLowerCase() === "u") forceOpen();
-    };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [forceOpen]);
-
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden">
       <WaitingRoomCanvas />
@@ -82,10 +65,6 @@ export default function Countdown({ onUnlock }: { onUnlock: () => void }) {
       {/* soft top + bottom gradient framing */}
       <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-ink/70 via-transparent to-ink/90" />
       <div className="vignette pointer-events-none absolute inset-0 z-10" />
-
-      <div className="absolute left-5 top-5 z-30">
-        <SoundToggle />
-      </div>
 
       <div className="relative z-20 flex h-full flex-col items-center justify-center px-6 text-center">
         <motion.p

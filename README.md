@@ -62,15 +62,24 @@ The closing line and the finale text live at the bottom of `src/lib/letter.ts`
 
 ### Adding / changing photos
 
-Photos live in `public/photos/`. After adding or removing files, regenerate
-`src/lib/photos.ts`:
+Originals live in `public/photos/`. For performance + reliable loading (WebGL
+runs out of texture memory on phones with full-size images), the site actually
+renders small `.webp` thumbnails from `public/photos/tex/`, and `src/lib/photos.ts`
+points there.
+
+After adding or removing originals, regenerate the thumbnails **and** the manifest:
 
 ```bash
-node -e "const fs=require('fs');const f=fs.readdirSync('public/photos').filter(x=>/\.(jpg|jpeg|png)$/i.test(x));fs.writeFileSync('src/lib/photos.ts','export const PHOTOS: string[] = [\n'+f.map(x=>'  \"/photos/'+x+'\"').join(',\n')+'\n];\n\nexport const PHOTO_COUNT = PHOTOS.length;\n')"
+# 1) make thumbnails (uses sharp, already installed)
+node -e "const sharp=require('sharp'),fs=require('fs'),p=require('path');const S='public/photos',O='public/photos/tex';fs.mkdirSync(O,{recursive:true});(async()=>{for(const f of fs.readdirSync(S).filter(x=>/\.(jpe?g|png)$/i.test(x))){await sharp(p.join(S,f)).rotate().resize({width:900,height:900,fit:'inside',withoutEnlargement:true}).webp({quality:80}).toFile(p.join(O,f.replace(/\.(jpe?g|png)$/i,'.webp')))}console.log('thumbnails done')})()"
+
+# 2) rebuild the manifest from the thumbnails
+node -e "const fs=require('fs');const f=fs.readdirSync('public/photos/tex').filter(x=>/\.webp$/i.test(x)).sort();fs.writeFileSync('src/lib/photos.ts','export const PHOTOS: string[] = [\n'+f.map(x=>'  \"/photos/tex/'+x+'\"').join(',\n')+'\n];\n\nexport const PHOTO_COUNT = PHOTOS.length;\n')"
 ```
 
-The photo-reaction indices in `src/lib/letter.ts` (the `photos: [...]` arrays) point
-into this list — adjust them to pick which photos appear beside which lines.
+Every photo gets used: the five worlds split the bank into five equal slices, and
+the photo-dive + finale mosaic use the whole set. The photo-reaction indices in
+`src/lib/letter.ts` (the `photos: [...]` arrays) point into this list.
 
 ## Deploy to Vercel
 

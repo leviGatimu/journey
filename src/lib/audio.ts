@@ -20,6 +20,7 @@ function ensureMusic() {
     music.loop = true;
     music.volume = 0;
     music.preload = "auto";
+    (window as any).__music = music; // debug aid
   }
   return music;
 }

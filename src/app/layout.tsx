@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import GlobalAudio from "@/components/GlobalAudio";
 
 const serif = Fraunces({
   subsets: ["latin"],
@@ -37,7 +38,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <GlobalAudio />
+      </body>
     </html>
   );
 }

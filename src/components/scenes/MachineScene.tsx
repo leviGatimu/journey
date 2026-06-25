@@ -55,7 +55,7 @@ function Gear({
 
 export default function MachineScene() {
   const world = getWorld("machine")!;
-  const photos = useMemo(() => picksFor("machine", 13), []);
+  const photos = useMemo(() => picksFor("machine", 12), []);
   const frags = fragmentsForWorld("machine");
   const has = useExperience((s) => s.hasCollected);
   const count = useExperience((s) => s.collected.length);

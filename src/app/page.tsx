@@ -12,9 +12,7 @@ import IntroSequence from "@/components/IntroSequence";
 import Hub from "@/components/Hub";
 import ProgressHUD from "@/components/ui/ProgressHUD";
 import CollectionBook from "@/components/ui/CollectionBook";
-import SoundToggle from "@/components/ui/SoundToggle";
 import AssemblyCinematic from "@/components/AssemblyCinematic";
-import DevPanel from "@/components/dev/DevPanel"; // DEV MODE — remove before gifting
 
 // R3F worlds must load client-side only (no SSR/prerender of WebGL)
 const WorldFrame = dynamic(() => import("@/components/WorldFrame"), {
@@ -28,7 +26,7 @@ export default function Home() {
   const [worldId, setWorldId] = useState<string | null>(null);
   const [bookOpen, setBookOpen] = useState(false);
 
-  const forceUnlocked = useExperience((s) => s.forceUnlocked);
+
   const visited = useExperience((s) => s.visited);
 
   // decide initial phase after mount (avoids SSR/date/localStorage mismatch)
@@ -38,7 +36,7 @@ export default function Home() {
     const previewWorld = params.get("world");
     const skipIntro = params.get("skip") === "1";
 
-    const unlocked = timeUntilUnlock().unlocked || forceUnlocked || previewUnlock;
+    const unlocked = timeUntilUnlock().unlocked || previewUnlock;
 
     if (previewWorld && getWorld(previewWorld)) {
       setWorldId(previewWorld);
@@ -58,14 +56,7 @@ export default function Home() {
 
   return (
     <main className="relative min-h-[100dvh] w-full bg-ink">
-      {showHud && (
-        <>
-          <ProgressHUD onOpenBook={() => setBookOpen(true)} />
-          <div className="fixed bottom-5 right-5 z-40">
-            <SoundToggle />
-          </div>
-        </>
-      )}
+      {showHud && <ProgressHUD onOpenBook={() => setBookOpen(true)} />}
 
       <AnimatePresence mode="wait">
         {phase === "boot" && (
@@ -131,16 +122,6 @@ export default function Home() {
         }}
       />
 
-      {/* DEV MODE — remove before gifting */}
-      <DevPanel
-        variant="main"
-        onPhase={setPhase}
-        onWorld={(id) => {
-          setWorldId(id);
-          setPhase("world");
-        }}
-        onOpenBook={() => setBookOpen(true)}
-      />
     </main>
   );
 }

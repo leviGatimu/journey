@@ -14,15 +14,14 @@ interface ExperienceState {
   /** whether the cinematic assembly has been completed (door appeared) */
   assembled: boolean;
   sound: SoundState;
-  /** dev/testing: force the gate open regardless of date */
-  forceUnlocked: boolean;
+
 
   collect: (id: string) => void;
   hasCollected: (id: string) => boolean;
   visit: (worldId: string) => void;
   setAssembled: (v: boolean) => void;
   toggleSound: () => void;
-  setForceUnlocked: (v: boolean) => void;
+
   reset: () => void;
 
   collectedCount: () => number;
@@ -36,8 +35,8 @@ export const useExperience = create<ExperienceState>()(
       collected: [],
       visited: [],
       assembled: false,
-      sound: "off",
-      forceUnlocked: false,
+      sound: "on",
+
 
       collect: (id) =>
         set((s) =>
@@ -54,7 +53,7 @@ export const useExperience = create<ExperienceState>()(
         ),
       setAssembled: (v) => set({ assembled: v }),
       toggleSound: () => set((s) => ({ sound: s.sound === "on" ? "off" : "on" })),
-      setForceUnlocked: (v) => set({ forceUnlocked: v }),
+
       reset: () =>
         set({ collected: [], visited: [], assembled: false }),
 

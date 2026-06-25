@@ -53,7 +53,7 @@ function HangingPhoto({
 
 export default function ForestScene() {
   const world = getWorld("forest")!;
-  const photos = useMemo(() => picksFor("forest", 11), []);
+  const photos = useMemo(() => picksFor("forest", 12), []);
   const frags = fragmentsForWorld("forest");
   const has = useExperience((s) => s.hasCollected);
   const collect = useCollect();

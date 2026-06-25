@@ -88,7 +88,7 @@ function StarPhoto({
 
 export default function StarsScene() {
   const world = getWorld("stars")!;
-  const photos = useMemo(() => picksFor("stars", 8), []);
+  const photos = useMemo(() => picksFor("stars", 12), []);
   const frags = fragmentsForWorld("stars");
   const has = useExperience((s) => s.hasCollected);
   const collect = useCollect();
