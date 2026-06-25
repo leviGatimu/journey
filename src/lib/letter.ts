@@ -1,9 +1,7 @@
 // ─────────────────────────────────────────────────────────────
-// THE LETTER
-// This is the heart of the whole experience. Edit freely.
-// Each entry is one "stanza" that scrolls into view on /letter.
-// `photos` (indices into the PHOTOS array) optionally float in
-// alongside that stanza. Keep lines short — they read like breath.
+// THE LETTER — Caela's real birthday letter, in her friend's words.
+// Each entry is one line that scrolls to centre and reveals word by word.
+// Spelling / emojis are intentional — left exactly as written. ♥
 // ─────────────────────────────────────────────────────────────
 
 export interface Stanza {
@@ -11,61 +9,51 @@ export interface Stanza {
   photos?: number[];
 }
 
-export const LETTER_OPENING = "Caela,";
+export const LETTER_OPENING = "a letter for caella 💞";
 
 export const LETTER: Stanza[] = [
-  { text: "I hid this letter on purpose.", photos: [0] },
+  { text: "Happyyyy birthhdayyy caellaaa 💞💞💞", photos: [0] },
+  { text: "I barely know where to start, but im sooo happyy forr youu mann" },
+  { text: "you are turning flippin 13 yearss oldd mann", photos: [12] },
+  { text: "i remember when we mett when you was 9 broo 😭", photos: [21] },
+  { text: "wllhi we known each other for a crazy long timeee broo" },
+  { text: "i want to wish you THE BESTT BIRTHDAYYYY everrrr", photos: [8, 30] },
   {
-    text: "I tore it into pieces and scattered it across everything we made together — the woods, the water, the quiet rooms full of light.",
-    photos: [3, 12],
+    text: "i want to legit thank you BIG TIME for being there for me when no one was",
   },
+  { text: "standing up for me, being the shoulder i can cry on" },
+  { text: "and also venting stuff that wasnt supposed to be vented to meee" },
   {
-    text: "Because the truth is, you were never going to find a single page that held all of you.",
-  },
-  {
-    text: "Thirteen years.",
-    photos: [21],
-  },
-  {
-    text: "Thirteen years of you growing louder and braver and funnier than anyone warned me you would be.",
-    photos: [8, 30],
-  },
-  {
-    text: "I remember when you were small enough to fall asleep mid-sentence.",
-    photos: [17],
-  },
-  {
-    text: "Now you finish mine.",
-  },
-  {
-    text: "You have this way of walking into a room and rearranging the light in it.",
-    photos: [25, 41],
-  },
-  {
-    text: "Not every day was soft. Some of them were hard, and you carried them anyway.",
-  },
-  {
-    text: "That is the part I am most proud of — not that you shine, but that you kept choosing to.",
-    photos: [9],
-  },
-  {
-    text: "So here is everything I could not say out loud without my voice breaking.",
+    text: "From the deep bottom of my fufu hearttt i loveee you soo muchh twinn",
     photos: [33, 47],
   },
   {
-    text: "I am so unbelievably lucky that the story I got to be in was also yours.",
+    text: "you are the most kindest, coolest, baddiest (clock that), tea-est (clock it again), girl",
+    photos: [25],
+  },
+  { text: "even going through our stupid moments when we did stupid thingsss" },
+  { text: "all the times we laughed together", photos: [41] },
+  { text: "and legit being the most relatble nigga i knoww broo" },
+  { text: "honestllyy ur legit my 2nd half, like lwkk samee personn", photos: [5] },
+  {
+    text: "and even though u is still gone through alot, you stil been strong though it all",
   },
   {
-    text: "Happy thirteenth, Caela.",
-    photos: [50, 5, 19],
+    text: "believeing in God that he'll make a way — and thats sum very special bout you",
+    photos: [9],
   },
+  { text: "You are also soo crazy caring, kind and awesome" },
   {
-    text: "Go be impossible to forget.",
+    text: "you have a crazy big HEART, and anyone near you can say the same",
+    photos: [50, 19],
   },
+  { text: "as i wrap up this funny letter with my funny writign skills" },
+  { text: "i want to say I LOVE YOUUU SOOO MUCHHH one moree timee", photos: [3] },
+  { text: "and HAPPYY BIRTHDAYY MY idiotic 13 yearr olddd 💞" },
 ];
 
-// The single line that lands after the letter, before the photo finale.
-export const LETTER_CLOSE = "thank you for being part of my story.";
+// The quiet line that lands after the letter, before the photo journey.
+export const LETTER_CLOSE = "now come see all of us 💞";
 
 // What the photo-mosaic finale spells out.
 export const FINALE_TEXT = "HAPPY 13TH\nBIRTHDAY\nCAELA";

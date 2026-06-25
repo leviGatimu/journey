@@ -49,7 +49,7 @@ export default function LetterStage({ onFinish }: { onFinish: () => void }) {
   return (
     <div
       ref={sectionRef}
-      style={{ height: `${(N + 1) * 85}vh` }}
+      style={{ height: `${(N + 1) * 62}vh` }}
       className="relative w-full"
     >
       {/* fixed, always-centred reading stage */}
