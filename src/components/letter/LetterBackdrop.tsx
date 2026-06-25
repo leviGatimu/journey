@@ -6,6 +6,7 @@ import * as THREE from "three";
 import PhotoCard from "@/components/three/PhotoCard";
 import Particles from "@/components/three/Particles";
 import { PHOTOS } from "@/lib/photos";
+import { dprCap, scaled } from "@/lib/perf";
 
 function DriftingDepthPhotos() {
   const group = useRef<THREE.Group>(null);
@@ -55,8 +56,8 @@ export default function LetterBackdrop() {
     <Canvas
       className="!fixed inset-0 -z-10"
       camera={{ position: [0, 0, 6], fov: 60 }}
-      dpr={[1, 1.6]}
-      gl={{ antialias: true, alpha: false }}
+      dpr={[1, dprCap()]}
+      gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
     >
       <color attach="background" args={["#050409"]} />
       <fog attach="fog" args={["#050409", 6, 22]} />
@@ -65,8 +66,8 @@ export default function LetterBackdrop() {
       <Suspense fallback={null}>
         <DriftingDepthPhotos />
       </Suspense>
-      <Particles count={600} color="#f4d9c6" size={0.035} spread={26} rise={0.06} opacity={0.5} />
-      <Particles count={300} color="#cdbfe6" size={0.05} spread={22} rise={0.03} opacity={0.4} />
+      <Particles count={scaled(600)} color="#f4d9c6" size={0.035} spread={26} rise={0.06} opacity={0.5} />
+      <Particles count={scaled(300)} color="#cdbfe6" size={0.05} spread={22} rise={0.03} opacity={0.4} />
     </Canvas>
   );
 }

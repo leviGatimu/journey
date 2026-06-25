@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { World } from "@/lib/worlds";
 import { fragmentsForWorld } from "@/lib/fragments";
 import { useExperience } from "@/lib/store";
+import { dprCap } from "@/lib/perf";
 
 import ForestScene from "@/components/scenes/ForestScene";
 import RiverScene from "@/components/scenes/RiverScene";
@@ -54,8 +55,8 @@ export default function WorldFrame({
     >
       <Canvas
         camera={{ position: [0, 0, 9], fov: 55 }}
-        dpr={[1, 1.8]}
-        gl={{ antialias: true, alpha: false }}
+        dpr={[1, dprCap()]}
+        gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
       >
         <Suspense fallback={null}>
           <Scene />

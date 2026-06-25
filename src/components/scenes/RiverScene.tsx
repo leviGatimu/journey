@@ -12,6 +12,7 @@ import { useExperience } from "@/lib/store";
 import { useCollect } from "@/lib/useCollect";
 import { picksFor } from "@/lib/photoPick";
 import { getWorld } from "@/lib/worlds";
+import { reflectorRes, scaled, isLow } from "@/lib/perf";
 
 const LANE_START = 14;
 const LANE_END = -14;
@@ -105,8 +106,8 @@ export default function RiverScene() {
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.2, 0]}>
         <planeGeometry args={[80, 60]} />
         <MeshReflectorMaterial
-          blur={[400, 120]}
-          resolution={1024}
+          blur={isLow() ? [128, 64] : [400, 120]}
+          resolution={reflectorRes()}
           mixBlur={1}
           mixStrength={6}
           depthScale={1.2}
@@ -133,7 +134,7 @@ export default function RiverScene() {
         />
       ))}
 
-      <Particles count={250} color="#bfe0ff" size={0.04} spread={28} rise={0.08} opacity={0.4} />
+      <Particles count={scaled(250)} color="#bfe0ff" size={0.04} spread={28} rise={0.08} opacity={0.4} />
     </>
   );
 }

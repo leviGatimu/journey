@@ -12,6 +12,8 @@ import { useExperience } from "@/lib/store";
 import { useCollect } from "@/lib/useCollect";
 import { picksFor } from "@/lib/photoPick";
 import { getWorld } from "@/lib/worlds";
+import { ambient } from "@/lib/audio";
+import { scaled } from "@/lib/perf";
 
 function Drawer({
   position,
@@ -50,6 +52,7 @@ function Drawer({
         position={[0, 0, 0]}
         onClick={(e) => {
           e.stopPropagation();
+          ambient.thunk();
           setOpen((o) => !o);
         }}
         onPointerOver={() => (document.body.style.cursor = "pointer")}
@@ -170,7 +173,7 @@ export default function AtticScene() {
         />
       ))}
 
-      <Particles count={500} color="#ffe6c0" size={0.035} spread={22} rise={-0.04} opacity={0.5} />
+      <Particles count={scaled(500)} color="#ffe6c0" size={0.035} spread={22} rise={-0.04} opacity={0.5} />
     </>
   );
 }

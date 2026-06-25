@@ -1,105 +1,178 @@
 "use client";
 
-// A tiny generative ambient engine. No audio files — just a warm,
-// slowly-evolving pad with occasional bell tones. Handcrafted calm.
+// Audio engine:
+//  • Music  → "song 1" (her favourite), looped, gently faded in/out.
+//  • SFX    → generated with Web Audio (no extra files): hovers, clicks,
+//             the collect arpeggio, drawer thunks, whooshes, star pings.
+// Everything is gated behind `enabled`, which the sound toggle controls.
 
+let enabled = false;
+
+// ── music ────────────────────────────────────────────────────────────────
+let music: HTMLAudioElement | null = null;
+let fadeTimer: ReturnType<typeof setInterval> | null = null;
+const MUSIC_VOL = 0.55;
+
+function ensureMusic() {
+  if (typeof window === "undefined") return null;
+  if (!music) {
+    music = new Audio("/audio/song1.m4a");
+    music.loop = true;
+    music.volume = 0;
+    music.preload = "auto";
+  }
+  return music;
+}
+
+function fadeTo(target: number, ms: number, onDone?: () => void) {
+  const el = ensureMusic();
+  if (!el) return;
+  if (fadeTimer) clearInterval(fadeTimer);
+  const start = el.volume;
+  const steps = Math.max(1, Math.round(ms / 50));
+  let i = 0;
+  fadeTimer = setInterval(() => {
+    i++;
+    el.volume = Math.min(1, Math.max(0, start + (target - start) * (i / steps)));
+    if (i >= steps) {
+      if (fadeTimer) clearInterval(fadeTimer);
+      fadeTimer = null;
+      onDone?.();
+    }
+  }, 50);
+}
+
+// ── sfx (Web Audio) ────────────────────────────────────────────────────────
 let ctx: AudioContext | null = null;
-let master: GainNode | null = null;
-let voices: OscillatorNode[] = [];
-let bellTimer: ReturnType<typeof setTimeout> | null = null;
-let running = false;
-
-const CHORD = [220, 277.18, 329.63, 440, 554.37]; // A major-ish, airy
-
 function ensureCtx() {
   if (typeof window === "undefined") return null;
   if (!ctx) {
     const AC = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AC) return null;
     ctx = new AC();
-    master = ctx.createGain();
-    master.gain.value = 0;
-    master.connect(ctx.destination);
   }
+  if (ctx.state === "suspended") ctx.resume();
   return ctx;
 }
 
-function bell() {
-  if (!ctx || !master || !running) return;
-  const notes = [659.25, 783.99, 880, 987.77, 1174.66];
-  const f = notes[Math.floor(Math.random() * notes.length)];
-  const o = ctx.createOscillator();
-  const g = ctx.createGain();
-  o.type = "sine";
-  o.frequency.value = f;
-  const t = ctx.currentTime;
+function tone(
+  freq: number,
+  dur: number,
+  {
+    type = "sine",
+    gain = 0.12,
+    delay = 0,
+    sweep = 0,
+  }: { type?: OscillatorType; gain?: number; delay?: number; sweep?: number } = {}
+) {
+  const c = ensureCtx();
+  if (!c) return;
+  const o = c.createOscillator();
+  const g = c.createGain();
+  o.type = type;
+  const t = c.currentTime + delay;
+  o.frequency.setValueAtTime(freq, t);
+  if (sweep) o.frequency.exponentialRampToValueAtTime(Math.max(20, freq + sweep), t + dur);
   g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(0.08, t + 0.02);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + 4);
-  o.connect(g).connect(master);
+  g.gain.linearRampToValueAtTime(gain, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(c.destination);
   o.start(t);
-  o.stop(t + 4.2);
-  bellTimer = setTimeout(bell, 4000 + Math.random() * 9000);
+  o.stop(t + dur + 0.02);
 }
 
+function noiseSweep(dur: number, gain = 0.08) {
+  const c = ensureCtx();
+  if (!c) return;
+  const buffer = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1);
+  const src = c.createBufferSource();
+  src.buffer = buffer;
+  const filter = c.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(400, c.currentTime);
+  filter.frequency.exponentialRampToValueAtTime(3000, c.currentTime + dur);
+  filter.Q.value = 0.8;
+  const g = c.createGain();
+  g.gain.setValueAtTime(0, c.currentTime);
+  g.gain.linearRampToValueAtTime(gain, c.currentTime + dur * 0.3);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + dur);
+  src.connect(filter).connect(g).connect(c.destination);
+  src.start();
+  src.stop(c.currentTime + dur + 0.02);
+}
+
+// throttle hover ticks so rapid pointer moves don't machine-gun
+let lastTick = 0;
+
 export const ambient = {
+  get enabled() {
+    return enabled;
+  },
   start() {
-    const c = ensureCtx();
-    if (!c || !master || running) return;
-    if (c.state === "suspended") c.resume();
-    running = true;
-
-    voices = CHORD.map((freq, i) => {
-      const o = c.createOscillator();
-      const g = c.createGain();
-      const lfo = c.createOscillator();
-      const lfoGain = c.createGain();
-      o.type = i % 2 === 0 ? "sine" : "triangle";
-      o.frequency.value = freq / (i > 2 ? 2 : 1);
-      g.gain.value = 0.04 / (i + 1);
-      // slow detune shimmer
-      lfo.frequency.value = 0.05 + i * 0.03;
-      lfoGain.gain.value = 1.5;
-      lfo.connect(lfoGain).connect(o.detune);
-      o.connect(g).connect(master!);
-      o.start();
-      lfo.start();
-      return o;
-    });
-
-    master.gain.cancelScheduledValues(c.currentTime);
-    master.gain.setValueAtTime(master.gain.value, c.currentTime);
-    master.gain.linearRampToValueAtTime(0.5, c.currentTime + 3);
-    bell();
+    enabled = true;
+    const el = ensureMusic();
+    ensureCtx();
+    if (el) {
+      el.play().catch(() => {});
+      fadeTo(MUSIC_VOL, 1400);
+    }
   },
   stop() {
-    if (!ctx || !master) return;
-    running = false;
-    master.gain.cancelScheduledValues(ctx.currentTime);
-    master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5);
-    if (bellTimer) clearTimeout(bellTimer);
-    const toStop = voices;
-    voices = [];
-    setTimeout(() => toStop.forEach((o) => { try { o.stop(); } catch {} }), 1700);
+    enabled = false;
+    if (music) {
+      fadeTo(0, 800, () => {
+        try {
+          music?.pause();
+        } catch {}
+      });
+    }
   },
-  // a short positive chime when collecting a fragment
+
+  // — interaction sound design —
+  tick() {
+    if (!enabled) return;
+    const now = performance.now();
+    if (now - lastTick < 70) return;
+    lastTick = now;
+    tone(880, 0.06, { type: "sine", gain: 0.04, sweep: 220 });
+  },
+  click() {
+    if (!enabled) return;
+    tone(523.25, 0.09, { type: "triangle", gain: 0.08 });
+    tone(784, 0.12, { type: "sine", gain: 0.05, delay: 0.02 });
+  },
+  // collected a fragment — bright rising arpeggio
   chime() {
-    const c = ensureCtx();
-    if (!c || !master) return;
-    if (c.state === "suspended") c.resume();
-    const seq = [523.25, 659.25, 783.99, 1046.5];
-    seq.forEach((f, i) => {
-      const o = c.createOscillator();
-      const g = c.createGain();
-      o.type = "sine";
-      o.frequency.value = f;
-      const t = c.currentTime + i * 0.08;
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.12, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
-      o.connect(g).connect(c.destination);
-      o.start(t);
-      o.stop(t + 1);
+    if (!enabled) return;
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) =>
+      tone(f, 0.9, { type: "sine", gain: 0.11, delay: i * 0.08 })
+    );
+  },
+  thunk() {
+    if (!enabled) return;
+    tone(150, 0.18, { type: "triangle", gain: 0.14, sweep: -60 });
+    tone(90, 0.22, { type: "sine", gain: 0.1 });
+  },
+  whoosh() {
+    if (!enabled) return;
+    noiseSweep(0.6, 0.07);
+  },
+  ping() {
+    if (!enabled) return;
+    const notes = [987.77, 1318.51];
+    tone(notes[Math.floor(Math.random() * notes.length)], 1.2, {
+      type: "sine",
+      gain: 0.09,
     });
+  },
+  // big warm swell for the assembly / doorway moment
+  swell() {
+    if (!enabled) return;
+    [261.63, 329.63, 392, 523.25].forEach((f, i) =>
+      tone(f, 2.4, { type: "sine", gain: 0.07, delay: i * 0.12 })
+    );
+    noiseSweep(1.6, 0.05);
   },
 };

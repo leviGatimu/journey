@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { FRAGMENTS } from "@/lib/fragments";
 import { LETTER_OPENING } from "@/lib/letter";
+import { ambient } from "@/lib/audio";
 
 type Phase = "gather" | "form" | "door";
 
@@ -15,6 +16,7 @@ export default function AssemblyCinematic() {
 
   useEffect(() => {
     router.prefetch("/letter");
+    ambient.swell();
     const t1 = setTimeout(() => setPhase("form"), 2600);
     const t2 = setTimeout(() => setPhase("door"), 5200);
     return () => {

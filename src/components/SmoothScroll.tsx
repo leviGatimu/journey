@@ -19,6 +19,7 @@ export default function SmoothScroll({
       touchMultiplier: 1.4,
     });
     globalLenis = lenis;
+    (window as any).__lenis = lenis;
 
     let raf = 0;
     const loop = (time: number) => {

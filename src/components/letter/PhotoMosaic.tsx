@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PHOTOS } from "@/lib/photos";
 import { FINALE_TEXT } from "@/lib/letter";
+import { mosaicMax } from "@/lib/perf";
 
 interface Cell {
   x: number;
@@ -14,7 +15,6 @@ interface Cell {
   delay: number;
 }
 
-const MAX = 320;
 
 export default function PhotoMosaic({ onReady }: { onReady?: () => void }) {
   const [cells, setCells] = useState<Cell[]>([]);
@@ -56,9 +56,10 @@ export default function PhotoMosaic({ onReady }: { onReady?: () => void }) {
         if (alpha > 128) targets.push({ x, y });
       }
     }
-    // even downsample to MAX
-    const stride = Math.max(1, Math.ceil(targets.length / MAX));
-    const picked = targets.filter((_, i) => i % stride === 0).slice(0, MAX);
+    // even downsample to the device's photo budget
+    const max = mosaicMax();
+    const stride = Math.max(1, Math.ceil(targets.length / max));
+    const picked = targets.filter((_, i) => i % stride === 0).slice(0, max);
 
     const built: Cell[] = picked.map((t, i) => {
       const edge = Math.floor(Math.random() * 4);

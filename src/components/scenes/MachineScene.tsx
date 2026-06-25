@@ -11,6 +11,7 @@ import { useExperience } from "@/lib/store";
 import { useCollect } from "@/lib/useCollect";
 import { picksFor } from "@/lib/photoPick";
 import { getWorld } from "@/lib/worlds";
+import { scaled } from "@/lib/perf";
 
 function Gear({
   urls,
@@ -110,7 +111,7 @@ export default function MachineScene() {
         />
       ))}
 
-      <Particles count={300} color="#ffb070" size={0.05} spread={24} rise={0.2} opacity={0.5} />
+      <Particles count={scaled(300)} color="#ffb070" size={0.05} spread={24} rise={0.2} opacity={0.5} />
     </>
   );
 }

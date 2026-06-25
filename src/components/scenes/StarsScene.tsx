@@ -4,6 +4,9 @@ import { useMemo, useState } from "react";
 import { Line, Html, Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import PhotoCard from "@/components/three/PhotoCard";
+import { haloTexture } from "@/components/three/halo";
+import { ambient } from "@/lib/audio";
+import { scaled } from "@/lib/perf";
 import Particles from "@/components/three/Particles";
 import FragmentObject from "@/components/three/FragmentObject";
 import { fragmentsForWorld } from "@/lib/fragments";
@@ -40,15 +43,17 @@ function StarPhoto({
         <group
           onClick={(e) => {
             e.stopPropagation();
+            ambient.ping();
             setOpen((o) => !o);
           }}
         >
           <PhotoCard url={url} scale={0.4} float floatSeed={position[0]} framed />
-          <sprite scale={1.4} position={[0, 0, -0.1]}>
+          <sprite scale={1.7} position={[0, 0, -0.1]}>
             <spriteMaterial
+              map={haloTexture()}
               color="#c9b6ff"
               transparent
-              opacity={0.4}
+              opacity={0.5}
               depthWrite={false}
               blending={THREE.AdditiveBlending}
             />
@@ -149,8 +154,8 @@ export default function StarsScene() {
         />
       ))}
 
-      <Particles count={900} color="#decfff" size={0.03} spread={34} rise={0.02} opacity={0.8} />
-      <Particles count={200} color="#c9b6ff" size={0.05} spread={30} rise={0.0} opacity={0.6} />
+      <Particles count={scaled(900)} color="#decfff" size={0.03} spread={34} rise={0.02} opacity={0.8} />
+      <Particles count={scaled(200)} color="#c9b6ff" size={0.05} spread={30} rise={0.0} opacity={0.6} />
     </>
   );
 }

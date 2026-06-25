@@ -14,6 +14,7 @@ import ProgressHUD from "@/components/ui/ProgressHUD";
 import CollectionBook from "@/components/ui/CollectionBook";
 import SoundToggle from "@/components/ui/SoundToggle";
 import AssemblyCinematic from "@/components/AssemblyCinematic";
+import DevPanel from "@/components/dev/DevPanel"; // DEV MODE — remove before gifting
 
 // R3F worlds must load client-side only (no SSR/prerender of WebGL)
 const WorldFrame = dynamic(() => import("@/components/WorldFrame"), {
@@ -128,6 +129,17 @@ export default function Home() {
           setBookOpen(false);
           setPhase("assembly");
         }}
+      />
+
+      {/* DEV MODE — remove before gifting */}
+      <DevPanel
+        variant="main"
+        onPhase={setPhase}
+        onWorld={(id) => {
+          setWorldId(id);
+          setPhase("world");
+        }}
+        onOpenBook={() => setBookOpen(true)}
       />
     </main>
   );

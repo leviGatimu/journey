@@ -8,6 +8,7 @@ import { fragmentsForWorld } from "@/lib/fragments";
 import { useExperience } from "@/lib/store";
 import { picksFor } from "@/lib/photoPick";
 import { NAME } from "@/lib/config";
+import { ambient } from "@/lib/audio";
 
 export default function Hub({
   onEnter,
@@ -99,9 +100,15 @@ export default function Hub({
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 + i * 0.12, duration: 0.9 }}
-                onMouseEnter={() => setHover(w.id)}
+                onMouseEnter={() => {
+                  setHover(w.id);
+                  ambient.tick();
+                }}
                 onMouseLeave={() => setHover(null)}
-                onClick={() => onEnter(w.id)}
+                onClick={() => {
+                  ambient.whoosh();
+                  onEnter(w.id);
+                }}
                 className="group relative flex items-baseline gap-5 border-b border-white/8 py-7 text-left transition-all hover:pl-4"
               >
                 <span className="font-serif text-sm text-bloom/30">

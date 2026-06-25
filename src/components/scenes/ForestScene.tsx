@@ -12,6 +12,7 @@ import { useExperience } from "@/lib/store";
 import { useCollect } from "@/lib/useCollect";
 import { picksFor } from "@/lib/photoPick";
 import { getWorld } from "@/lib/worlds";
+import { scaled } from "@/lib/perf";
 
 function Tree({ x, z, h }: { x: number; z: number; h: number }) {
   return (
@@ -125,7 +126,7 @@ export default function ForestScene() {
         />
       ))}
 
-      <Particles count={300} color="#bfeccb" size={0.05} spread={26} rise={0.05} opacity={0.4} />
+      <Particles count={scaled(300)} color="#bfeccb" size={0.05} spread={26} rise={0.05} opacity={0.4} />
     </>
   );
 }

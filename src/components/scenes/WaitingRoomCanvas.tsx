@@ -6,6 +6,7 @@ import { Float } from "@react-three/drei";
 import PhotoCard from "@/components/three/PhotoCard";
 import Particles from "@/components/three/Particles";
 import { PHOTOS } from "@/lib/photos";
+import { dprCap, scaled, isLow } from "@/lib/perf";
 
 function shuffle<T>(arr: T[], seed = 7) {
   const a = [...arr];
@@ -19,7 +20,7 @@ function shuffle<T>(arr: T[], seed = 7) {
 }
 
 function DriftingPhotos() {
-  const picks = useMemo(() => shuffle(PHOTOS).slice(0, 14), []);
+  const picks = useMemo(() => shuffle(PHOTOS).slice(0, isLow() ? 8 : 14), []);
   const placed = useMemo(
     () =>
       picks.map((url, i) => ({
@@ -68,8 +69,8 @@ export default function WaitingRoomCanvas() {
     <Canvas
       className="!fixed inset-0"
       camera={{ position: [0, 0, 6], fov: 55 }}
-      dpr={[1, 1.8]}
-      gl={{ antialias: true, alpha: true }}
+      dpr={[1, dprCap()]}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
       <color attach="background" args={["#0a0810"]} />
       <fog attach="fog" args={["#0a0810", 6, 16]} />
@@ -79,7 +80,7 @@ export default function WaitingRoomCanvas() {
       <Suspense fallback={null}>
         <DriftingPhotos />
       </Suspense>
-      <Particles count={350} color="#f4d9c6" size={0.045} spread={20} rise={0.1} opacity={0.5} />
+      <Particles count={scaled(350)} color="#f4d9c6" size={0.045} spread={20} rise={0.1} opacity={0.5} />
     </Canvas>
   );
 }
